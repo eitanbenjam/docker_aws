@@ -35,12 +35,6 @@
     - name: start docker-regsitry
       command: docker run -d -p 5000:5000 --name docker-registry --restart=always registry:2
 
-    - name: Download jeknins-cli.jar
-      get_url:
-        url: http://localhost:8080/jnlpJars/jenkins-cli.jar
-        dest: /var/tmp/jenkins-cli.jar
-        mode: '0440'
-
     - name: Clone a repo with separate git directory
       git:
         repo: https://github.com/eitanbenjam/docker_jenkins.git
@@ -122,9 +116,15 @@
       until: result.status == 200
       retries: 60
       delay: 2
+
+    - name: Download jeknins-cli.jar
+      get_url:
+        url: http://localhost:8080/jnlpJars/jenkins-cli.jar
+        dest: /var/tmp/jenkins-cli.jar
+        mode: '0440'
     
     - name: install jenkins plugins
-      command: "java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin {{item}}"
+      command: "java -jar /var/tmp/jenkins-cli.jar -s http://localhost:8080 install-plugin {{item}}"
       with_items:
         - "git"
         - "docker-workflow"
