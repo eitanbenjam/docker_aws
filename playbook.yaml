@@ -1,0 +1,147 @@
+---
+  - name: "Playing with Ansible and Git"
+    hosts: localhost
+    connection: local 
+    tasks:
+
+
+    - name: add jenkins repository
+      apt_repository:
+        repo: deb [trusted=yes] http://pkg.jenkins-ci.org/debian-stable binary/
+        state: present
+
+
+    - name: Install the pachage "openjdk-8-jdk"
+      apt:
+        name: openjdk-8-jdk
+        state: present
+
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: add jenkins user to docker group
+      command: gpasswd -a jenkins docker
+
+    - name: Install the package "jenkins"
+      apt:
+        name: jenkins
+        state: present
+
+
+    - name: start docker-regsitry
+      command: docker run -d -p 5000:5000 --name docker-registry --restart=always registry:2
+
+    - name: Download jeknins-cli.jar
+      get_url:
+        url: http://localhost:8080/jnlpJars/jenkins-cli.jar
+        dest: /var/tmp/jenkins-cli.jar
+        mode: '0440'
+
+    - name: Clone a repo with separate git directory
+      git:
+        repo: https://github.com/eitanbenjam/docker_jenkins.git
+        dest: /tmp/git_clone
+      separate_git_dir: /src/ansible-examples.git
+
+    - name: backup /var/lib/jenkins/config.xml file
+      copy:
+        src: /var/lib/jenkins/config.xml
+        dest: /var/lib/jenkins/config.xml.org
+        force: no
+
+    - name: Copy unsecured config.xml
+      copy:
+        src: /tmp/git_clone/xml_conf/config.xml
+        dest: /var/lib/jenkins/config.xml
+        owner: jenkins
+        group: jenkins
+ 
+
+    - name: Copy library conf
+      copy:
+        src: /tmp/git_clone/xml_conf/org.jenkinsci.plugins.workflow.libs.GlobalLibraries.xml
+        dest: /var/lib/jenkins/org.jenkinsci.plugins.workflow.libs.GlobalLibraries.xml
+        owner: jenkins
+        group: jenkins
+
+    - name: Create a directory if it does not exist
+      file:
+        path: /var/jenkins_home/
+        state: directory
+        mode: '0755'
+        owner: jenkins
+        group: jenkins
+
+    - name: copy library source folder
+      command: cp -r /tmp/git_clone/local_git /var/jenkins_home/
+
+    - name: set git
+      shell: cd /var/jenkins_home/local_git/jenkins_library/;git init
+
+    - name: add to git
+      shell: cd /var/jenkins_home/local_git/jenkins_library/;git add .
+
+    - name: git commit
+      shell: cd /var/jenkins_home/local_git/jenkins_library/;git -c user.name="eitan" -c user.email=eitanbenjam@gmail.com commit -am "init"
+      ignore_errors: yes
+
+    - name: chown
+      command: chown -R jenkins:jenkins /var/jenkins_home/
+
+    - name: Copy docker plugin conf
+      copy:
+        src: /tmp/git_clone/xml_conf/org.jenkinsci.plugins.docker.commons.tools.DockerTool.xml
+        dest: /var/lib/jenkins/org.jenkinsci.plugins.docker.commons.tools.DockerTool.xml
+        owner: jenkins
+        group: jenkins
+
+    - name: copy job
+      copy:
+        src: /tmp/git_clone/xml_conf/jobs/multi_branch_nodejs_eitan/config_aws.xml
+        dest: /var/lib/jenkins/jobs/multi_branch_nodejs_eitan/config.xml
+        owner: jenkins
+        group: jenkins
+
+    - name: chown
+      command: chown -R jenkins:jenkins /var/lib/jenkins/jobs/
+
+    - name: restart service jenkins, if not running
+      service:
+        name: jenkins
+        state: restarted
+
+    - name: "wait for Jenkins to come up"
+      uri:
+        url: "http://127.0.0.1:8080/"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 2
+    
+    - name: install jenkins plugins
+      command: "java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin {{item}}"
+      with_items:
+        - "git"
+        - "docker-workflow"
+        - "workflow-job"
+        - "workflow-aggregator"
+        - "workflow-api"
+        - "workflow-basic-steps"
+        - "workflow-cps"
+        - "workflow-durable-task-step"
+        - "pipeline-stage-view"
+        - "jquery-detached"
+        - "momentjs"
+        - "handlebars"
+        - "pipeline-rest-api"
+        - "workflow-cps-global-lib"
+        - "github"
+
+    - name: restart service jenkins, if not running
+      service:
+        name: jenkins
+        state: restarted
+
