@@ -21,13 +21,15 @@
         name: docker.io
         state: present
 
-    - name: add jenkins user to docker group
-      command: gpasswd -a jenkins docker
-
     - name: Install the package "jenkins"
       apt:
         name: jenkins
         state: present
+
+
+    - name: add jenkins user to docker group
+      command: gpasswd -a jenkins docker
+
 
 
     - name: start docker-regsitry
@@ -139,6 +141,14 @@
         - "pipeline-rest-api"
         - "workflow-cps-global-lib"
         - "github"
+
+
+    - name: restore /var/lib/jenkins/config.xml file
+      copy:
+        src: /var/lib/jenkins/config.xml.org
+        dest: /var/lib/jenkins/config.xml
+        owner: jenkins
+        group: jenkins
 
     - name: restart service jenkins, if not running
       service:

@@ -1,11 +1,11 @@
 provider "aws" {
   profile = "default"
-  region  = "us-west-1"
+  region  = "us-east-1"
 }
 
 resource "aws_key_pair" "ubuntu" {
   key_name   = "ubuntu"
-  public_key = file("tikal_key.pem")
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiMl4o0iat8xgTG93yPOXt5mVCREIvY7LNrLvkGYEsliYhjbxO6wWJYQn6llBqkcKVOjOgJxHPFQ57g5ByXXUko1Z4ch02JFMP8gQY1Yp3hRuumlMF/BDlyFeCCt76kVJycZAVBUrNHccrgI9qd72iCusUK+kx0p2AkrIVQ4lj+l7/B7pOYYLjaBZC+6IIQj2JNg9NWYzJZSGUn861Gn78xCmCZSKaGMc54gl8+LW+ihuAPA1nXz/T9jwSkhX3LaeLxZ5OmMly97ql5S4dc2hSEu8kIJxMSPkymWY+70y5rZl4s0cvaMbCZ4gUwWjnAg2UGt/MB6SSFgKAy/JiFc2h tikal_key"
 }
 
 resource "aws_security_group" "ubuntu" {
@@ -51,7 +51,7 @@ resource "aws_security_group" "ubuntu" {
 
 resource "aws_instance" "jenkins-ubuntu" {
   key_name      = aws_key_pair.ubuntu.key_name
-  ami           = "ami-0ac73f33a1888c64a"
+  ami           = "ami-00ddb0e5626798373"
   instance_type = "t2.micro"
   user_data = file("install_ansible.sh")
 
@@ -77,3 +77,6 @@ resource "aws_eip" "ubuntu" {
   instance = aws_instance.jenkins-ubuntu.id
 }
 
+output "ec2_global_ips" {
+  value = [aws_instance.jenkins-ubuntu.*.public_ip]
+}
