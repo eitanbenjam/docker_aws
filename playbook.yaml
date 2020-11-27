@@ -45,6 +45,10 @@
       wait_for:
         path: /var/lib/jenkins/config.xml 
 
+    - name: Pause for 1 minutes for jenkins to update
+      pause:
+        minutes: 1
+
     - name: backup /var/lib/jenkins/config.xml file
       copy:
         src: /var/lib/jenkins/config.xml
