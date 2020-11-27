@@ -41,6 +41,10 @@
         dest: /tmp/git_clone
       separate_git_dir: /src/ansible-examples.git
 
+    - name: Wait until the file /var/lib/jenkins/config.xml is present before continuing
+      wait_for:
+        path: /var/lib/jenkins/config.xml 
+
     - name: backup /var/lib/jenkins/config.xml file
       copy:
         src: /var/lib/jenkins/config.xml
@@ -64,11 +68,14 @@
 
     - name: Create a directory if it does not exist
       file:
-        path: /var/jenkins_home/
+        path: "{{ item }}"
         state: directory
         mode: '0755'
         owner: jenkins
         group: jenkins
+      with_items:
+        - "/var/lib/jenkins/jobs/multi_branch_nodejs_eitan/"
+        - "/var/jenkins_home/"
 
     - name: copy library source folder
       command: cp -r /tmp/git_clone/local_git /var/jenkins_home/
@@ -122,7 +129,11 @@
         url: http://localhost:8080/jnlpJars/jenkins-cli.jar
         dest: /var/tmp/jenkins-cli.jar
         mode: '0440'
-    
+
+    - name: Pause for 1 minutes for jenkins to update
+      pause:
+        minutes: 1
+
     - name: install jenkins plugins
       command: "java -jar /var/tmp/jenkins-cli.jar -s http://localhost:8080 install-plugin {{item}}"
       with_items:
