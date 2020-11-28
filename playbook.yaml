@@ -156,6 +156,7 @@
         - "pipeline-rest-api"
         - "workflow-cps-global-lib"
         - "github"
+        - "generic-webhook-trigger"
 
 
     - name: restore /var/lib/jenkins/config.xml file
