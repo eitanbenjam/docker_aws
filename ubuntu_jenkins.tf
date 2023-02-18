@@ -5,7 +5,7 @@ provider "aws" {
 
 resource "aws_key_pair" "ubuntu" {
   key_name   = "ubuntu"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiMl4o0iat8xgTG93yPOXt5mVCREIvY7LNrLvkGYEsliYhjbxO6wWJYQn6llBqkcKVOjOgJxHPFQ57g5ByXXUko1Z4ch02JFMP8gQY1Yp3hRuumlMF/BDlyFeCCt76kVJycZAVBUrNHccrgI9qd72iCusUK+kx0p2AkrIVQ4lj+l7/B7pOYYLjaBZC+6IIQj2JNg9NWYzJZSGUn861Gn78xCmCZSKaGMc54gl8+LW+ihuAPA1nXz/T9jwSkhX3LaeLxZ5OmMly97ql5S4dc2hSEu8kIJxMSPkymWY+70y5rZl4s0cvaMbCZ4gUwWjnAg2UGt/MB6SSFgKAy/JiFc2h tikal_key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCiMl4o0iat8xgTG93yPOXt5mVCREIvY7LNrLvkGYEsliYhjbxO6wWJYQn6llBqkcKVOjOgJxHPFQ57g5ByXXUko1Z4ch02JFMP8gQY1Yp3hRuumlMF/BDlyFeCCt76kVJycZAVBUrNHccrgI9qd72iCusUK+kx0p2AkrIVQ4lj+l7/B7pOYYLjaBZC+6IIQj2JNg9NWYzJZSGUn861Gn78xCmCZSKaGMc54gl8+LW+ihuAPA1nXz/T9jwSkhX3LaeLxZ5OmMly97ql5S4dc2hSEu8kIJxMSPkymWY+70y5rZl4s0cvaMbCZ4gUwWjnAg2UGt/MB6SSFgKAy/JiFc2h eitan_exam_key"
 }
 
 resource "aws_security_group" "ubuntu" {
@@ -44,7 +44,7 @@ resource "aws_security_group" "ubuntu" {
   }
 
   tags = {
-    Name = "tikal"
+    Name = "eitan_exam_sg"
   }
 }
 
@@ -56,7 +56,7 @@ resource "aws_instance" "jenkins-ubuntu" {
   user_data = file("install_ansible.sh")
 
   tags = {
-    Name = "tikal"
+    Name = "jenkins-ubuntu-exam"
   }
 
   vpc_security_group_ids = [
@@ -66,7 +66,7 @@ resource "aws_instance" "jenkins-ubuntu" {
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file("tikal_key.pem")
+    private_key = file("eitan_exam_key.pem")
     host        = self.public_ip
   }
 

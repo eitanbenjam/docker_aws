@@ -1,7 +1,7 @@
 # docker_aws
 
 # repository goal
-perform CI (compile,build test and deploy) on https://github.com/eitanbenjam/tikal_eitan_exam.git repository.
+perform CI (compile,build test and deploy) on https://github.com/eitanbenjam/nodejs_eitan_exam.git repository.
 
 This code will bring up Ubuntu instance in AWS responsible of bring Ubuntu 18.04 instance in AWS via terraform, run cloud-init script that install ansible, and then run a playbook that install ansible docker,jenkins and configure job + library.
 
@@ -42,7 +42,7 @@ jenkins_public_ip = [
    -----------------------------------------------------------------------------------------------------------------------------------------------------
 |                                                                 DescribeInstances                                                                 |
 +-------+----------------------+-------+----------+---------------+---------------+-----------+--------------------------------------------+--------+
-|  tikal|  i-0b4232596d4df7aef |  None |  running |  172.31.93.69 |  3.225.168.73 |  t2.micro |  ec2-3-225-168-73.compute-1.amazonaws.com  |  None  |
+|  jenkins_ubuntu|  i-0b4232596d4df7aef |  None |  running |  172.31.93.69 |  3.225.168.73 |  t2.micro |  ec2-3-225-168-73.compute-1.amazonaws.com  |  None  |
 +-------+----------------------+-------+----------+---------------+---------------+-----------+--------------------------------------------+--------+
 
 ```
@@ -50,7 +50,7 @@ jenkins_public_ip = [
    login to machine with the ssh_key that u define in terraform and run the following command to see ansible progress:
 tail -f /var/log/cloud-init-output.log (see ansible tasks)
 ```
-    ssh -i tikal_key.pem ubuntu@3.225.168.73
+    ssh -i eitan_exam_key.pem ubuntu@3.225.168.73
     tail -f /var/log/cloud-init-output.log
 ```
 last line should look like that:
